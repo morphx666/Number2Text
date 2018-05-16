@@ -1,15 +1,41 @@
 ' Convert any positive number from 0 up to 999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999
 ' to its Spanish written form
 
+Imports System.Globalization
 Imports System.Threading
 
 Friend Class FormMain
     Inherits Form
 
     Private tmrCounter As Timer
+    Private textInfo As TextInfo = New CultureInfo("en-US", False).TextInfo
+
+    Private Sub FormMain_Load() Handles MyBase.Load
+        AddHandler Me.FormClosing, Sub()
+                                       If tmrCounter IsNot Nothing Then
+                                           tmrCounter.Dispose()
+                                           Application.DoEvents()
+                                       End If
+                                   End Sub
+
+        AddHandler ButtondGuess.Click, Sub()
+                                           If tmrCounter IsNot Nothing Then ToggleAuto()
+                                           Randomize(My.Computer.Clock.TickCount)
+                                           Guess()
+                                       End Sub
+
+        AddHandler TextBoxNumber.TextChanged, Sub() HandleTextChanged()
+        AddHandler TextBoxNumber.KeyPress, Sub(s As Object, e As KeyPressEventArgs)
+                                               Dim c As Integer
+                                               e.Handled = Not (Integer.TryParse(e.KeyChar.ToString(), c) OrElse
+                                                                e.KeyChar = "."c OrElse
+                                                                System.Text.Encoding.ASCII.GetBytes(e.KeyChar)(0) = Keys.Back)
+                                           End Sub
+        TextBoxNumber.Text = "0"
+    End Sub
 
     Private Function Num2Txt(number As Integer) As String
-        Return Num2Txt(number.ToString)
+        Return Num2Txt(number.ToString())
     End Function
 
     Private Function Num2Txt(number As String) As String
@@ -24,7 +50,7 @@ Friend Class FormMain
         If tmpNumber.Length < 4 Then
             Dim vs As Integer
             Integer.TryParse(tmpNumber, vs)
-            ' This IIf is only useful to obtain "cero" when vs = 0
+            ' This If is only useful to obtain "cero" when vs = 0
             ' Otherwise, we could use this: result = ParseNumber(vs)
             result = If(vs < 10, Unidad2Str(vs, False), ParseNumber(vs))
         Else
@@ -69,7 +95,7 @@ Friend Class FormMain
         End If
 
         ' Remove excessive spaces
-        result = result.Trim()
+        result = result.Trim().Replace("  "," ")
 
         ' Fix some minor issues
         ' result = result.Replace("ciento ", "ciento").Replace("uno ", "un ")
@@ -79,12 +105,11 @@ Friend Class FormMain
         result = result.Replace("millon", "%").Replace(" mil", "mil").Replace("%", "millon")
         If result.Contains("illon ") OrElse result.EndsWith("illon") Then result = result.Replace("illon", "illón")
 
-        result = StrConv(result, VbStrConv.ProperCase)
-        Return result.Replace(" Y ", " y ")
+        Return textInfo.ToTitleCase(result).Replace(" Y ", " y ")
     End Function
 
     Private Function ParseNumber(number As Integer) As String
-        Dim sNumber As String = CStr(number)
+        Dim sNumber As String = number.ToString()
         Dim position As Integer = 1
         Dim result As String = ""
 
@@ -133,24 +158,15 @@ Friend Class FormMain
     Private Function Decena2Str(number As Integer, useAlt As Boolean) As String
         Dim r As String = ""
         Select Case number
-            Case 1
-                r = If(useAlt, "diez", "dieci")
-            Case 2
-                r = If(useAlt, "veinte", "venti")
-            Case 3
-                r = "treinta"
-            Case 4
-                r = "cuarenta"
-            Case 5
-                r = "cincuenta"
-            Case 6
-                r = "sesenta"
-            Case 7
-                r = "setenta"
-            Case 8
-                r = "ochenta"
-            Case 9
-                r = "noventa"
+            Case 1 : r = If(useAlt, "diez", "dieci")
+            Case 2 : r = If(useAlt, "veinte", "venti")
+            Case 3 : r = "treinta"
+            Case 4 : r = "cuarenta"
+            Case 5 : r = "cincuenta"
+            Case 6 : r = "sesenta"
+            Case 7 : r = "setenta"
+            Case 8 : r = "ochenta"
+            Case 9 : r = "noventa"
         End Select
 
         If Not useAlt And number >= 3 Then r += " y "
@@ -184,23 +200,6 @@ Friend Class FormMain
 
         Return ""
     End Function
-
-    Private Sub ButtonGuess_Click(eventSender As Object, eventArgs As EventArgs) Handles ButtondGuess.Click
-        If tmrCounter IsNot Nothing Then ToggleAuto()
-        Randomize(My.Computer.Clock.TickCount)
-        Guess()
-    End Sub
-
-    Private Sub FormMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
-        If tmrCounter IsNot Nothing Then
-            tmrCounter.Dispose()
-            Application.DoEvents()
-        End If
-    End Sub
-
-    Private Sub FormMain_Load(eventSender As Object, eventArgs As EventArgs) Handles MyBase.Load
-        TextBoxNumber.Text = "0"
-    End Sub
 
     Private Sub Guess()
         Dim rndNumber As String
@@ -250,13 +249,13 @@ ReStart:
     '    IsBusy = True
 
     '    Dim number As Integer = CInt(GetIntPart(txtNumber.Text).Replace(",", ""))
-    '    txtNumber.Invoke(New UpdateTextDel(AddressOf UpdateText), CStr(number + 1))
+    '    txtNumber.Invoke(New UpdateTextDel(AddressOf UpdateText), (number + 1).ToString())
 
     '    IsBusy = False
     'End Sub
 
     ' This version is slower but it allows us to go beyond the limits of the largest number available in .NET (ULong.MaxValue / 18,446,744,073,709,551,615)
-    ' We could define the variables as Double (which would allow us to go up to 10^308 but this would make the program too slow
+    ' We could define the variables as Double (which would allow us to go up to 10^308) but this would make the program too slow
     Private Sub AutoCount(state As Object)
         Static IsBusy As Boolean
         If IsBusy Then Exit Sub
@@ -280,7 +279,7 @@ ReStart:
                 Exit For
             End If
             sNumber = sNumber.Substring(0, i - 1) + number.ToString() + sNumber.Substring(i)
-            'Mid(sNumber, i, 1) = CStr(number)
+            'Mid(sNumber, i, 1) = number.ToString()
         Next i
         If carryFlag Then sNumber = "1" + sNumber
 
@@ -305,7 +304,7 @@ ReStart:
         End If
     End Function
 
-    Private Sub TextBoxNumber_TextChanged(eventSender As Object, eventArgs As EventArgs) Handles TextBoxNumber.TextChanged
+    Private Sub HandleTextChanged()
         Static IsBusy As Boolean
         If IsBusy Then Exit Sub
         IsBusy = True
@@ -379,8 +378,8 @@ ReStart:
     Private Function Num2Frac(decNumber As Single) As String
         Dim numerator As Single
 
-        If Not decNumber.ToString.Contains("E") Then
-            If CStr(decNumber).Contains(".") Then
+        If Not decNumber.ToString().Contains("E") Then
+            If decNumber.ToString().Contains(".") Then
                 For denominator As Integer = 1 To 10000
                     numerator = (denominator * decNumber)
                     If CInt(numerator) - numerator = 0 Then Return String.Format("{0}/{1}", numerator, denominator)
@@ -390,17 +389,6 @@ ReStart:
 
         Return ""
     End Function
-
-    Private Sub TextBoxNumber_KeyPress(eventSender As Object, eventArgs As KeyPressEventArgs) Handles TextBoxNumber.KeyPress
-        Dim KeyAscii As Integer = Asc(eventArgs.KeyChar)
-
-        If (Not (KeyAscii >= Asc("0") And KeyAscii <= Asc("9"))) And KeyAscii <> Asc(".") And KeyAscii <> Keys.Back Then
-            KeyAscii = 0
-        End If
-
-        eventArgs.KeyChar = Chr(KeyAscii)
-        If KeyAscii = 0 Then eventArgs.Handled = True
-    End Sub
 
     Private Sub ButtonAuto_Click(sender As Object, e As EventArgs) Handles ButtonAuto.Click
         ToggleAuto()
@@ -424,7 +412,7 @@ ReStart:
         Else
             If number = 0 Then Return "N"
 
-            Dim result As New System.Text.StringBuilder()
+            Dim result As New Text.StringBuilder()
             For i As Integer = 0 To rnValues.Length - 1
                 While number >= rnValues(i)
                     number -= rnValues(i)
