@@ -16,6 +16,8 @@ Friend Class FormMain
         Dim tmpNumber As String = ""
         Dim result As String = ""
 
+        number = number.Replace(",", "")
+
         ' Pad the number so that it is a multiple of 3 characters
         tmpNumber = tmpNumber.PadLeft(3 - (number.Length Mod 3)) + number
 
@@ -349,14 +351,17 @@ ReStart:
                 LabelResult.Text = String.Format("{0} {1}", LabelResult.Text, Num2Txt(frcPart))
 
                 ' Alternate Display
-                Dim f As String = Num2Frac(CSng(TextBoxNumber.Text.Replace(",", "")))
-                If f <> "" Then
-                    Dim p As String() = f.Split("/"c)
-                    Dim n As String = Num2Txt(p(0))
-                    Dim d As String = Num2Txt(p(1))
+                Try
+                    Dim f As String = Num2Frac(CSng(TextBoxNumber.Text.Replace(",", "")))
+                    If f <> "" Then
+                        Dim p As String() = f.Split("/"c)
+                        Dim n As String = Num2Txt(p(0))
+                        Dim d As String = Num2Txt(p(1))
 
-                    LabelResult.Text = String.Format("{0}{1}ó{1}{2} sobre {3}", LabelResult.Text, Environment.NewLine, n, d)
-                End If
+                        LabelResult.Text = String.Format("{0}{1}ó{1}{2} sobre {3}", LabelResult.Text, Environment.NewLine, n, d)
+                    End If
+                Catch ex As OverflowException
+                End Try
             ElseIf intPart = "42" Then
                 LabelResult.Text = String.Format("{0}{1}ó{1}El significado de la vida, el universo y todo lo demás...", LabelResult.Text, Environment.NewLine)
             End If
