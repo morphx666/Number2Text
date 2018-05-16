@@ -7,7 +7,7 @@ Imports System.Runtime.InteropServices
 ' associated with an assembly.
 
 
-<Assembly: AssemblyTitle("")> 
+<Assembly: AssemblyTitle("Number to Text")>
 <Assembly: AssemblyDescription("")>
 <Assembly: AssemblyCompany("xFX JumpStart")>
 <Assembly: AssemblyProduct("")>

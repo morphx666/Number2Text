@@ -183,7 +183,7 @@ Friend Class FormMain
         Return ""
     End Function
 
-    Private Sub ButtonGuess_Click(eventSender As Object, eventArgs As EventArgs) Handles ButtonGuess.Click
+    Private Sub ButtonGuess_Click(eventSender As Object, eventArgs As EventArgs) Handles ButtondGuess.Click
         If tmrCounter IsNot Nothing Then ToggleAuto()
         Randomize(My.Computer.Clock.TickCount)
         Guess()
@@ -397,13 +397,13 @@ ReStart:
         If KeyAscii = 0 Then eventArgs.Handled = True
     End Sub
 
-    Private Sub TextBoxAuto_Click(sender As Object, e As EventArgs) Handles ButtonAuto.Click
+    Private Sub ButtonAuto_Click(sender As Object, e As EventArgs) Handles ButtonAuto.Click
         ToggleAuto()
     End Sub
 
     Private Sub ToggleAuto()
         If tmrCounter Is Nothing Then
-            tmrCounter = New Timer(AddressOf AutoCount, Nothing, 0, 1)
+            tmrCounter = New System.Threading.Timer(AddressOf AutoCount, Nothing, 0, 1)
         Else
             tmrCounter.Dispose()
             tmrCounter = Nothing
