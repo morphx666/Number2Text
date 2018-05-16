@@ -4,9 +4,9 @@
 Imports System.Threading
 
 Friend Class FormMain
-    Inherits System.Windows.Forms.Form
+    Inherits Form
 
-    Private tmrCounter As Threading.Timer
+    Private tmrCounter As Timer
 
     Private Function Num2Txt(number As Integer) As String
         Return Num2Txt(number.ToString)
@@ -24,7 +24,7 @@ Friend Class FormMain
             Integer.TryParse(tmpNumber, vs)
             ' This IIf is only useful to obtain "cero" when vs = 0
             ' Otherwise, we could use this: result = ParseNumber(vs)
-            result = IIf(Of String)(vs < 10, Unidad2Str(vs, False), ParseNumber(vs))
+            result = If(vs < 10, Unidad2Str(vs, False), ParseNumber(vs))
         Else
             Dim pos As Integer = 0
             Dim prefix As String
@@ -132,9 +132,9 @@ Friend Class FormMain
         Dim r As String = ""
         Select Case number
             Case 1
-                r = IIf(useAlt, "diez", "dieci")
+                r = If(useAlt, "diez", "dieci")
             Case 2
-                r = IIf(useAlt, "veinte", "venti")
+                r = If(useAlt, "veinte", "venti")
             Case 3
                 r = "treinta"
             Case 4
@@ -183,20 +183,20 @@ Friend Class FormMain
         Return ""
     End Function
 
-    Private Sub ButtonGuess_Click(eventSender As System.Object, eventArgs As System.EventArgs) Handles ButtonGuess.Click
+    Private Sub ButtonGuess_Click(eventSender As Object, eventArgs As EventArgs) Handles ButtonGuess.Click
         If tmrCounter IsNot Nothing Then ToggleAuto()
         Randomize(My.Computer.Clock.TickCount)
         Guess()
     End Sub
 
-    Private Sub FormMain_FormClosing(sender As Object, e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
+    Private Sub FormMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         If tmrCounter IsNot Nothing Then
             tmrCounter.Dispose()
             Application.DoEvents()
         End If
     End Sub
 
-    Private Sub FormMain_Load(eventSender As System.Object, eventArgs As System.EventArgs) Handles MyBase.Load
+    Private Sub FormMain_Load(eventSender As Object, eventArgs As EventArgs) Handles MyBase.Load
         TextBoxNumber.Text = "0"
     End Sub
 
@@ -303,7 +303,7 @@ ReStart:
         End If
     End Function
 
-    Private Sub TextBoxNumber_TextChanged(eventSender As System.Object, eventArgs As System.EventArgs) Handles TextBoxNumber.TextChanged
+    Private Sub TextBoxNumber_TextChanged(eventSender As Object, eventArgs As EventArgs) Handles TextBoxNumber.TextChanged
         Static IsBusy As Boolean
         If IsBusy Then Exit Sub
         IsBusy = True
@@ -333,7 +333,7 @@ ReStart:
             End If
             If Val(sNumber) = 0 Then sNumber = "0"
             TextBoxNumber.Text = sNumber + "." + frcPart
-            TextBoxNumber.SelectionStart = IIf(Of Integer)(selStart <= 0, 1, selStart)
+            TextBoxNumber.SelectionStart = If(selStart <= 0, 1, selStart)
 
             ' Handle decimals
             LabelResult.Text = Num2Txt(intPart.Replace(",", ""))
@@ -386,10 +386,10 @@ ReStart:
         Return ""
     End Function
 
-    Private Sub TextBoxNumber_KeyPress(eventSender As System.Object, eventArgs As System.Windows.Forms.KeyPressEventArgs) Handles TextBoxNumber.KeyPress
+    Private Sub TextBoxNumber_KeyPress(eventSender As Object, eventArgs As KeyPressEventArgs) Handles TextBoxNumber.KeyPress
         Dim KeyAscii As Integer = Asc(eventArgs.KeyChar)
 
-        If (Not (KeyAscii >= Asc("0") And KeyAscii <= Asc("9"))) And KeyAscii <> Asc(".") And KeyAscii <> System.Windows.Forms.Keys.Back Then
+        If (Not (KeyAscii >= Asc("0") And KeyAscii <= Asc("9"))) And KeyAscii <> Asc(".") And KeyAscii <> Keys.Back Then
             KeyAscii = 0
         End If
 
@@ -397,26 +397,18 @@ ReStart:
         If KeyAscii = 0 Then eventArgs.Handled = True
     End Sub
 
-    Private Sub TextBoxAuto_Click(sender As System.Object, e As System.EventArgs) Handles ButtonAuto.Click
+    Private Sub TextBoxAuto_Click(sender As Object, e As EventArgs) Handles ButtonAuto.Click
         ToggleAuto()
     End Sub
 
     Private Sub ToggleAuto()
         If tmrCounter Is Nothing Then
-            tmrCounter = New System.Threading.Timer(AddressOf AutoCount, Nothing, 0, 1)
+            tmrCounter = New Timer(AddressOf AutoCount, Nothing, 0, 1)
         Else
             tmrCounter.Dispose()
             tmrCounter = Nothing
         End If
     End Sub
-
-    Private Function IIf(Of T)(condition As Boolean, truePart As T, falsePart As T) As T
-        If condition Then
-            Return truePart
-        Else
-            Return falsePart
-        End If
-    End Function
 
     Private rnValues() As Integer = New Integer() {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
     Private rNumerals() As String = New String() {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
