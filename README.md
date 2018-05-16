@@ -3,4 +3,6 @@ Conversión de números a su forma escrita y dentro de lo posible a números rom
 
 ![Number2Text](https://xfx.net/stackoverflow/number2text/n2t_anim.gif)
 
-Convert any positive number from 0 up to 999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999 to its Spanish written form and, whenever possible, express the number in Roman numerals and/or fractions
+Convert any positive number from `0` up to `999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999.999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999,999` to its Spanish written form and, whenever possible, express the number in Roman numerals and/or fractions
+
+![Number2Text](https://xfx.net/stackoverflow/number2text/huge_number.png)
